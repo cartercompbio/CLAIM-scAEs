@@ -44,7 +44,7 @@ def get_matrix_from_h5(filename):
         return CountMatrix(feature_ref, barcodes, matrix)
     
 
-def visualize(latent_embedding, cellids, metadata_file="data/pbmc3k_SeuratMetadata.tsv", savefile=None):
+def visualize(latent_embedding, cellids, metadata_file, savefile=None):
     metadata = pd.read_csv(metadata_file, sep="\t")
     cell_type_map = metadata["cell_type"].loc[cellids]
     cmap = matplotlib.cm.get_cmap("tab20")
