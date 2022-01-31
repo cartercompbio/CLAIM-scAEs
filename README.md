@@ -22,9 +22,9 @@ The dataset used here is the “PBMC3k” single-cell RNA-seq datasets; 3K Perip
 
 Notebooks should be executed in the order listed.
 
-1. `Collect_Datasets_and_Preprocess.ipynb`
-2. `Collect_Cell_Type_Labels.ipynb`
-2. `Train_Autoencoder_Tutorial.ipynb`
+1. `Collect_Datasets_and_Preprocess.ipynb` (already ran)
+2. `Collect_Cell_Type_Labels.ipynb` (already ran)
+2. `Train_Autoencoder_Tutorial.ipynb` (main notebook; this is what you will use to train your autoencoder)
 
 ### Scripts
 
@@ -49,3 +49,8 @@ We will use NRNB compute resources for this workshop.
     ```
     
 3. Refresh the JupyterLab interface page. You should now be able to access the `ml_env` kernel for the notebooks.
+4. Let's get a copy of the repo:
+
+    ```bash
+    git clone https://github.com/adamklie/CLAIM-scAEs.git
+    ```
