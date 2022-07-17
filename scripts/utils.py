@@ -46,46 +46,65 @@ def get_matrix_from_h5(filename):
 
 def visualize(latent_embedding, cellids, metadata_file, savefile=None):
     metadata = pd.read_csv(metadata_file, sep="\t")
+    cellids = pd.Index(cellids)
+    cellids = cellids[cellids.isin(metadata.index)]
     cell_type_map = metadata["cell_type"].loc[cellids]
     cmap = matplotlib.cm.get_cmap("tab20")
     color_labels = metadata["cell_type"].unique()
     pal = sns.color_palette("tab20", len(color_labels))
     color_map = dict(zip(color_labels, pal))
     
-    
-    print("Performing UMAP reduction on latent embedding, may take a minute")
-    reducer = umap.UMAP()
-    umap_embedding = reducer.fit_transform(latent_embedding)
-    
-    print("Performing PCA on latent embedding")
-    scaler = StandardScaler()
-    scaled_latent_data = scaler.fit_transform(latent_embedding)
-    pca = PCA()
-    pca_embedding = pca.fit_transform(scaled_latent_data)
-    
     from matplotlib.lines import Line2D
-    fig, ax = plt.subplots(1, 2, figsize=(16,8))
+    if latent_embedding.shape[1] > 2:
+        print("Performing UMAP reduction on latent embedding, may take a minute")
+        reducer = umap.UMAP(n_neighbors=30, min_dist=0.3, spread=1.0)
+        umap_embedding = reducer.fit_transform(latent_embedding)
 
-    ax[0].scatter(
-        x=pca_embedding[:, 0],
-        y=pca_embedding[:, 1],
-        c=cell_type_map.map(color_map),
-    )
-    ax[0].set_title('PCA', fontsize=18)
-    ax[0].set_xlabel('PCA_1', fontsize=14)
-    ax[0].set_ylabel('PCA_2', fontsize=14)
+        print("Performing PCA on latent embedding")
+        scaler = StandardScaler()
+        scaled_latent_data = scaler.fit_transform(latent_embedding)
+        pca = PCA()
+        pca_embedding = pca.fit_transform(scaled_latent_data)
 
-    ax[1].scatter(
-        x=umap_embedding[:, 0],
-        y=umap_embedding[:, 1],
-        c=cell_type_map.map(color_map),
-    )
-    ax[1].set_title('UMAP', fontsize=18)
-    ax[1].set_xlabel('UMAP_1', fontsize=14)
-    ax[1].set_ylabel('UMAP_2', fontsize=14)
-    handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor=v, label=k, markersize=8) for k, v in color_map.items()]
-    ax[1].legend(handles=handles, bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=14, title_fontsize=16, title="Cell-type")
-    plt.gca().set_aspect('equal', 'datalim')
+        fig, ax = plt.subplots(1, 2, figsize=(16,8))
+
+        ax[0].scatter(
+            x=pca_embedding[:, 0],
+            y=pca_embedding[:, 1],
+            c=cell_type_map.map(color_map),
+        )
+        ax[0].set_title('PCA', fontsize=18)
+        ax[0].set_xlabel('PCA_1', fontsize=14)
+        ax[0].set_ylabel('PCA_2', fontsize=14)
+
+        ax[1].scatter(
+            x=umap_embedding[:, 0],
+            y=umap_embedding[:, 1],
+            c=cell_type_map.map(color_map),
+        )
+        ax[1].set_title('UMAP', fontsize=18)
+        ax[1].set_xlabel('UMAP_1', fontsize=14)
+        ax[1].set_ylabel('UMAP_2', fontsize=14)
+        handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor=v, label=k, markersize=8) for k, v in color_map.items()]
+        ax[1].legend(handles=handles, bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=14, title_fontsize=16, title="Cell-type")
+        plt.gca().set_aspect('equal', 'datalim')
+    
+    else:
+        print("Latent space is already 2 dimensions, just plotting")
+        fig, ax = plt.subplots(1, 1, figsize=(8,8))
+
+        ax.scatter(
+            x=latent_embedding[:, 0],
+            y=latent_embedding[:, 1],
+            c=cell_type_map.map(color_map),
+        )
+        ax.set_title('Latent Dimensions', fontsize=18)
+        ax.set_xlabel('latent_1', fontsize=14)
+        ax.set_ylabel('latent_2', fontsize=14)
+
+        handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor=v, label=k, markersize=8) for k, v in color_map.items()]
+        ax.legend(handles=handles, bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=14, title_fontsize=16, title="Cell-type")
+        plt.gca().set_aspect('equal', 'datalim')
     
     if savefile != None:
         plt.savefig(savefile)

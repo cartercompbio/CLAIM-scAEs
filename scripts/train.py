@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 from livelossplot import PlotLosses
 
+
+# Simple function to train an autoencoder without a validation set
 def train_autoencoder(model, 
                       dataloader, 
                       criterion=torch.nn.MSELoss(reduction='sum'), 
@@ -28,6 +30,7 @@ def train_autoencoder(model,
         
         # Iterate through each batch
         for inputs in dataloader:
+            #print(inputs[0].size())
             inputs = inputs[0].to(device)
             outputs = model(inputs.float())
             loss = criterion(outputs, inputs.float())
